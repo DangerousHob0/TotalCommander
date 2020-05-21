@@ -1,0 +1,187 @@
+﻿<Page x:Class="TotalCommander.View.FileExplorer"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:TotalCommander.View"
+      xmlns:vm="clr-namespace:TotalCommander.ViewModel"
+      xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+      xmlns:iconPacks="http://metro.mahapps.com/winfx/xaml/iconpacks"
+      xmlns:beh="clr-namespace:TotalCommander.EventToCommandBehavior"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="555">
+    <Page.DataContext>
+        <vm:FileExplorerViewModel/>
+    </Page.DataContext>
+
+    <Page.Resources>
+        <LinearGradientBrush StartPoint="0 0" EndPoint="0 1" x:Key="myGray">
+                <LinearGradientBrush.GradientStops>
+                    <GradientStop Offset="0.3" Color="LightGray" />
+                    <GradientStop Offset="1" Color="DimGray" />
+                </LinearGradientBrush.GradientStops>
+         </LinearGradientBrush>
+     
+        <Style TargetType="GridViewColumnHeader" x:Key="GridViewColumnHeaderStyle">
+            <!--<Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="GridViewColumnHeader">
+                        <Grid>
+                            <Border Name="HeaderBorder"
+                              BorderThickness="1"
+                              BorderBrush="DimGray"
+                              Background="WhiteSmoke"
+                              Margin="2,0,2,0">
+                                <ContentPresenter Name="HeaderContent"
+                              TextElement.Foreground="Black"
+                                Margin="0,0,0,1"
+                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>
+                            </Border>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="HeaderBorder" Property="Background" Value="LightGray"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="HeaderBorder" Property="Background" Value="DimGray"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>-->
+        </Style>
+        <Style TargetType="ListViewItem" x:Key="ListViewItemStyle">
+            <Setter Property="IsSelected" Value="{Binding IsSelected}"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background">
+                        <Setter.Value>
+                            <LinearGradientBrush StartPoint="0 0" EndPoint="0 1" Opacity="0.15">
+                                <LinearGradientBrush.GradientStops>
+                                    <GradientStop Offset="0.3" Color="LightGray" />
+                                    <GradientStop Offset="1" Color="DimGray" />
+                                </LinearGradientBrush.GradientStops>
+                            </LinearGradientBrush>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="BorderThickness" Value="1"/>
+                    <Setter Property="BorderBrush" Value="LightGray"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
+                    <Setter Property="Background">
+                        <Setter.Value>
+                            <LinearGradientBrush StartPoint="0 0" EndPoint="0 1" Opacity="0.7">
+                                <LinearGradientBrush.GradientStops>
+                                    <GradientStop Offset="0.3" Color="LightGray" />
+                                    <GradientStop Offset="1" Color="DimGray" />
+                                </LinearGradientBrush.GradientStops>
+                            </LinearGradientBrush>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="BorderThickness" Value="1"/>
+                    <Setter Property="BorderBrush" Value="DimGray"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Page.Resources>
+    <Grid ShowGridLines="False">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="25"/>
+            <RowDefinition Height="20"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="20"/>
+        </Grid.RowDefinitions>
+
+
+        <StackPanel Orientation="Horizontal" x:Name="Panel">
+            <ComboBox ItemsSource="{Binding LogicalDrives, Mode=OneWay}" Width= "145" Height="25" x:Name="CB">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <iconPacks:PackIconModern Kind="{Binding Icon}"/>
+                            <TextBlock Text="{Binding Title}" Margin="10,0,0,0"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="SelectionChanged">
+                        <i:InvokeCommandAction Command="{Binding CBitemSelected}" CommandParameter="{Binding ElementName=CB, Path=SelectedItem}"/>
+                    </i:EventTrigger>
+                    <i:EventTrigger EventName="MouseEnter">
+                        <i:InvokeCommandAction Command="{Binding Update}"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+            </ComboBox>
+            <TextBlock Text="{Binding DiskInfo}" Margin="10,1,0,0"/>
+        </StackPanel>
+        <Grid Grid.Row="1" Background="DimGray">
+            <TextBox Text="{Binding CurrentDirectory.FullName, Mode=OneWay}" Margin="4,1,0,0"
+                     IsReadOnly="True" Background="Transparent" BorderThickness="0"
+                     Foreground="White" FontWeight="Bold">
+            </TextBox>
+        </Grid>
+
+        <ListView x:Name="LVitems" Grid.Row="2" ItemsSource="{Binding ExplorerItems, Mode=OneWay}" 
+             SelectionMode="Extended" ItemContainerStyle="{StaticResource ListViewItemStyle}"
+             AllowDrop="True">
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="MouseDoubleClick">
+                    <i:InvokeCommandAction Command="{Binding LVitemClick}" CommandParameter="{Binding ElementName = LVitems, Path=SelectedItem}"/>
+                </i:EventTrigger>
+                <i:EventTrigger EventName="SelectionChanged">
+                    <i:InvokeCommandAction Command="{Binding LVselectedChanged}"/>
+                </i:EventTrigger>
+                <!--drag and drop-->
+                <i:EventTrigger EventName="PreviewMouseRightButtonDown">
+                    <i:InvokeCommandAction Command="{Binding FileDrag}" CommandParameter="{Binding ElementName=LVitems}"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+            <!--drag and drop-->
+            <i:Interaction.Behaviors>
+                <beh:EventToCommandBehavior Command="{Binding Drop}" Event="Drop" PassArguments="True"/>
+            </i:Interaction.Behaviors>
+            <ListView.View>
+                <GridView ColumnHeaderContainerStyle="{StaticResource GridViewColumnHeaderStyle}">
+                    <GridViewColumn Width="285">
+                        <GridViewColumnHeader Content="Имя">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Click">
+                                    <i:InvokeCommandAction Command="{Binding SortItems}" CommandParameter="Name"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </GridViewColumnHeader>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal" ToolTip="{Binding Hint, Mode=OneWay}">
+                                    <Image Source="{Binding Icon, Mode=OneWay}" Width="22" Height="22"/>
+                                    <TextBlock Text="{Binding File, Mode=OneWay}" Foreground="{Binding TextColor}" Margin="4,0,0,0"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn DisplayMemberBinding="{Binding File.Attributes, Mode=OneWay}"
+                                     Width="140">
+                        <GridViewColumnHeader Content="Тип">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Click">
+                                    <i:InvokeCommandAction Command="{Binding SortItems}" CommandParameter="Type"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </GridViewColumnHeader>
+                    </GridViewColumn>
+                    <GridViewColumn DisplayMemberBinding="{Binding CreationTime, Mode=OneWay}" Width="120">
+                        <GridViewColumnHeader Content="Дата">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Click">
+                                    <i:InvokeCommandAction Command="{Binding SortItems}" CommandParameter="Date"/>
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </GridViewColumnHeader>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <TextBlock Text="{Binding FilesQuantityInDir, Mode=OneWay}" Grid.Row="3" Margin="5,0,0,0"/>
+    </Grid>
+</Page>

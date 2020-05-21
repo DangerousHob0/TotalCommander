@@ -1,0 +1,24 @@
+﻿<Window x:Class="DragDropTest.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DragDropTest"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="450" Width="800" Loaded="Window_Loaded">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+
+        <ListBox x:Name="Lb1" PreviewMouseDown="ListBox_PreviewMouseDown"
+                 AllowDrop="True" Drop="ListBox_Drop"
+                 ItemsSource="{Binding Lb0}">
+            
+        </ListBox>
+
+        <ListBox x:Name="Lb2" Grid.Column="1" PreviewMouseDown="ListBox_PreviewMouseDown" AllowDrop="True" Drop="ListBox_Drop" ItemsSource="{Binding Lb1}">
+        </ListBox>
+    </Grid>
+</Window>
